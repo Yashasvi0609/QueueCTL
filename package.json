@@ -1,0 +1,41 @@
+{
+  "name": "queuectl",
+  "version": "1.0.0",
+  "description": "A production-grade CLI background job queue built with Node.js, featuring parallel workers, persistent storage, exponential backoff retries, Dead Letter Queue (DLQ), and real-time monitoring.",
+  "main": "src/cli/index.js",
+  "bin": {
+    "queuectl": "./src/cli/index.js"
+  },
+  "scripts": {
+    "start": "node src/cli/index.js",
+    "dev": "nodemon src/cli/index.js",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yashasvi0609/QueueCTL.git"
+  },
+  "keywords": [
+    "cli",
+    "job-queue",
+    "sqlite",
+    "worker"
+  ],
+  "author": "Yashasvi Chaurasiya",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Yashasvi0609/QueueCTL/issues"
+  },
+  "homepage": "https://github.com/Yashasvi0609/QueueCTL#readme",
+  "dependencies": {
+    "better-sqlite3": "^12.11.1",
+    "chalk": "^5.6.2",
+    "commander": "^15.0.0",
+    "ora": "^9.4.1",
+    "uuid": "^14.0.1"
+  },
+  "devDependencies": {
+    "jest": "^30.4.2",
+    "nodemon": "^3.1.14"
+  }
+}
