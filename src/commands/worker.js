@@ -1,28 +1,9 @@
-const JobModel = require("../models/JobModel");
-const WorkerService = require("../services/WorkerService");
+const WorkerManager = require("../workers/WorkerManager");
+const PidManager = require("../utils/PidManager");
+async function startWorker() {
+  const manager = new WorkerManager();
 
-function startWorker() {
-
-  const job = JobModel.getPendingJob();
-
-  if (!job) {
-
-    console.log("📭 No pending jobs.");
-
-    return;
-  }
-
-  const locked = JobModel.lockJob(job.id);
-
-  if (!locked) {
-
-    console.log("⚠️ Job already picked by another worker.");
-
-    return;
-  }
-
-  WorkerService.processJob(job);
-
+  await manager.start();
 }
 
 module.exports = startWorker;

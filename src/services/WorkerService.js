@@ -3,58 +3,73 @@ const JobModel = require("../models/JobModel");
 const ConfigModel = require("../models/ConfigModel");
 
 class WorkerService {
-  processJob(job) {
+  async processNextJob() {
+    const job = JobModel.getPendingJob();
+
+    if (!job) {
+      return;
+    }
+
+    const locked = JobModel.lockJob(job.id);
+
+    if (!locked) {
+      return;
+    }
+
     console.log(`🚀 Processing Job: ${job.id}`);
 
-    exec(job.command, (error) => {
+    return new Promise((resolve) => {
+      exec(job.command, (error) => {
+        if (error) {
+          console.log(`❌ Job Failed: ${job.id}`);
 
-      if (error) {
+          JobModel.incrementAttempts(job.id);
 
-        console.log(`❌ Job Failed: ${job.id}`);
+          const updatedJob = JobModel.findById(job.id);
 
-        JobModel.incrementAttempts(job.id);
+          if (updatedJob.attempts >= updatedJob.max_retries) {
+            console.log("☠️ Moved to Dead Letter Queue");
 
-        const updatedJob = JobModel.findById(job.id);
+            JobModel.moveToDead(job.id);
+          } else {
+            const base = Number(
+              ConfigModel.get("backoff_base")
+            );
 
-        if (updatedJob.attempts >= updatedJob.max_retries) {
+            const delay = Math.pow(
+              base,
+              updatedJob.attempts
+            );
 
-          console.log("☠️ Moved to Dead Letter Queue");
+            const nextRun =
+              Date.now() + delay * 1000;
 
-          JobModel.moveToDead(job.id);
+            JobModel.updateNextRun(
+              job.id,
+              nextRun
+            );
 
-        } else {
+            JobModel.moveToPending(job.id);
 
-          const base = Number(
-            ConfigModel.get("backoff_base")
-          );
+            console.log(
+              `🔄 Retry in ${delay} seconds`
+            );
+          }
 
-          const delay =
-            Math.pow(base, updatedJob.attempts);
-
-          const nextRun =
-            Date.now() + delay * 1000;
-
-          JobModel.updateNextRun(
-            job.id,
-            nextRun
-          );
-
-          JobModel.moveToPending(job.id);
-
-          console.log(
-            `🔄 Retry in ${delay} seconds`
-          );
-
+          return resolve();
         }
 
-        return;
-      }
+        console.log(`✅ Job Completed: ${job.id}`);
 
-      console.log(`✅ Job Completed: ${job.id}`);
+        JobModel.updateState(
+          job.id,
+          "completed"
+        );
 
-      JobModel.updateState(job.id, "completed");
-      JobModel.clearNextRun(job.id);
+        JobModel.clearNextRun(job.id);
 
+        resolve();
+      });
     });
   }
 }

@@ -8,6 +8,8 @@ const startWorker = require("../commands/worker");
 const status = require("../commands/status");
 const dlq = require("../commands/dlq");
 const config = require("../commands/config");
+const stopWorker =
+require("../commands/stopWorker");
 initializeDatabase();
 const program = new Command();
 
@@ -26,25 +28,27 @@ program
   .description("List jobs")
   .option("--state <state>", "Filter by state")
   .action(list);
- program
+ const workerCommand = program
   .command("worker")
-  .description("Worker operations")
+  .description("Worker operations");
+
+workerCommand
   .command("start")
   .description("Start worker(s)")
   .option("--count <number>", "Number of workers", "1")
-  .action((options) => {
-
+  .action(async (options) => {
     const count = Number(options.count);
 
     for (let i = 0; i < count; i++) {
-
       console.log(`👷 Worker ${i + 1} started`);
-
       startWorker();
-
     }
-
   });
+
+workerCommand
+  .command("stop")
+  .description("Stop running workers gracefully")
+  .action(stopWorker);
   program
   .command("status")
   .description("Show queue summary")

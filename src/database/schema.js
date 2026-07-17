@@ -36,6 +36,10 @@ VALUES
 ('max_retries','3'),
 ('backoff_base','2')
 `).run();
+db.prepare(`
+INSERT OR IGNORE INTO config
+VALUES ('worker_stop','false')
+`).run();
 
   console.log("✅ Database initialized");
 }
