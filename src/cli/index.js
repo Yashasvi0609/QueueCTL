@@ -3,6 +3,7 @@
 const { Command } = require("commander");
 const initializeDatabase = require("../database/schema");
 const enqueue = require("../commands/enqueue");
+const list = require("../commands/list");
 initializeDatabase();
 const program = new Command();
 
@@ -16,4 +17,9 @@ program
   .description("Add a new job to the queue")
   .argument("<job>", "Job JSON")
   .action(enqueue);
+  program
+  .command("list")
+  .description("List jobs")
+  .option("--state <state>", "Filter by state")
+  .action(list);
 program.parse();

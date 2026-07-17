@@ -27,6 +27,20 @@ class JobModel {
       job.updated_at
     );
   }
-}
 
+getAll(state = null) {
+  if (state) {
+    const stmt = db.prepare(
+      "SELECT * FROM jobs WHERE state = ? ORDER BY created_at DESC"
+    );
+    return stmt.all(state);
+  }
+
+  const stmt = db.prepare(
+    "SELECT * FROM jobs ORDER BY created_at DESC"
+  );
+
+  return stmt.all();
+}
+}
 module.exports = new JobModel();
