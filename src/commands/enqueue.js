@@ -1,5 +1,6 @@
 const { v4: uuidv4 } = require("uuid");
 const JobModel = require("../models/JobModel");
+const ConfigModel = require("../models/ConfigModel");
 const { validateJobInput } = require("../utils/validation");
 
 function enqueue(jobInput) {
@@ -13,7 +14,9 @@ function enqueue(jobInput) {
       command: input.command,
       state: "pending",
       attempts: 0,
-      max_retries: input.max_retries || 3,
+      max_retries:
+        input.max_retries ||
+        Number(ConfigModel.get("max_retries")),
       next_run_at: 0,
       created_at: now,
       updated_at: now,

@@ -14,6 +14,7 @@ function list(options) {
       STATE: job.state,
       COMMAND: job.command,
       ATTEMPTS: job.attempts,
+      MAX_RETRIES: job.max_retries,
     }))
   );
 }

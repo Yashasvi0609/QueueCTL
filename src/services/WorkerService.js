@@ -1,54 +1,60 @@
 const { exec } = require("child_process");
 const JobModel = require("../models/JobModel");
-const config = require("../config/config");
+const ConfigModel = require("../models/ConfigModel");
+
 class WorkerService {
   processJob(job) {
     console.log(`🚀 Processing Job: ${job.id}`);
 
-
     exec(job.command, (error) => {
-     if (error) {
 
-  console.log(`❌ Job Failed: ${job.id}`);
+      if (error) {
 
-  JobModel.incrementAttempts(job.id);
+        console.log(`❌ Job Failed: ${job.id}`);
 
-  const updatedJob = JobModel.findById(job.id);
+        JobModel.incrementAttempts(job.id);
 
-  if (updatedJob.attempts >= updatedJob.max_retries) {
+        const updatedJob = JobModel.findById(job.id);
 
-    console.log("☠️ Moved to Dead Letter Queue");
+        if (updatedJob.attempts >= updatedJob.max_retries) {
 
-    JobModel.moveToDead(job.id);
+          console.log("☠️ Moved to Dead Letter Queue");
 
-  } else {
+          JobModel.moveToDead(job.id);
 
-    const delay =
-      Math.pow(config.backoffBase, updatedJob.attempts);
+        } else {
 
-    const nextRun =
-      Date.now() + delay * 1000;
+          const base = Number(
+            ConfigModel.get("backoff_base")
+          );
 
-    JobModel.updateNextRun(
-      job.id,
-      nextRun
-    );
+          const delay =
+            Math.pow(base, updatedJob.attempts);
 
-    JobModel.moveToPending(job.id);
+          const nextRun =
+            Date.now() + delay * 1000;
 
-    console.log(
-      `🔄 Retry in ${delay} seconds`
-    );
+          JobModel.updateNextRun(
+            job.id,
+            nextRun
+          );
 
-  }
+          JobModel.moveToPending(job.id);
 
-  return;
-}
+          console.log(
+            `🔄 Retry in ${delay} seconds`
+          );
+
+        }
+
+        return;
+      }
 
       console.log(`✅ Job Completed: ${job.id}`);
 
       JobModel.updateState(job.id, "completed");
       JobModel.clearNextRun(job.id);
+
     });
   }
 }

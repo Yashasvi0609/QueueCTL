@@ -22,6 +22,20 @@ function initializeDatabase() {
       value TEXT NOT NULL
     );
   `);
+db.prepare(`
+CREATE TABLE IF NOT EXISTS config (
+
+    key TEXT PRIMARY KEY,
+    value TEXT
+
+)
+`).run();
+db.prepare(`
+INSERT OR IGNORE INTO config(key,value)
+VALUES
+('max_retries','3'),
+('backoff_base','2')
+`).run();
 
   console.log("✅ Database initialized");
 }

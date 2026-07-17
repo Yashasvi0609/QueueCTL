@@ -7,6 +7,7 @@ const list = require("../commands/list");
 const startWorker = require("../commands/worker");
 const status = require("../commands/status");
 const dlq = require("../commands/dlq");
+const config = require("../commands/config");
 initializeDatabase();
 const program = new Command();
 
@@ -62,5 +63,20 @@ dlqCommand
     .description("Retry dead job")
     .argument("<jobId>")
     .action(dlq.retryDeadJob);
-    
+const configCommand = program
+.command("config")
+.description("Configuration");
+
+configCommand
+.command("get")
+.description("Show configuration")
+.action(config.getConfig);
+
+configCommand
+.command("set")
+.description("Update configuration")
+.argument("<key>")
+.argument("<value>")
+.action(config.setConfig);
+
 program.parse();
