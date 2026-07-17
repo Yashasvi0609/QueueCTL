@@ -9,20 +9,24 @@
   "scripts": {
     "start": "node src/cli/index.js",
     "dev": "nodemon src/cli/index.js",
-    "test": "jest"
+    "test": "tests\\test.bat"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Yashasvi0609/QueueCTL.git"
   },
   "keywords": [
+    "nodejs",
     "cli",
+    "queue",
     "job-queue",
+    "background-jobs",
     "sqlite",
-    "worker"
+    "worker",
+    "scheduler"
   ],
   "author": "Yashasvi Chaurasiya",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/Yashasvi0609/QueueCTL/issues"
   },
@@ -36,7 +40,6 @@
     "uuid": "^14.0.1"
   },
   "devDependencies": {
-    "jest": "^30.4.2",
     "nodemon": "^3.1.14"
   }
 }
