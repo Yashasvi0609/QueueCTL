@@ -1,0 +1,4 @@
+module.exports = {
+  maxRetries: 3,
+  backoffBase: 2
+};
